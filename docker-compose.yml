@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  statements:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8088:8080"
+    volumes:
+      - .:/usr/src/statements
+      - cargo-git:/usr/local/cargo/git
+      - cargo-registry:/usr/local/cargo/registry
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@db/statements
+      - MEILISEARCH_URL=http://meilisearch:7700
+    depends_on:
+      - db
+      - meilisearch
+
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: statements
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  meilisearch:
+    image: getmeili/meilisearch:v1.1
+    volumes:
+      - meili_data:/meili_data
+    ports:
+      - "7700:7700"
+
+volumes:
+  db_data:
+  meili_data:
+  cargo-git:
+  cargo-registry:
